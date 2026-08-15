@@ -1,0 +1,14 @@
+[
+  { "id": "rice", "name": "Rice", "seasons": ["kharif"], "type": "Cereal" },
+  { "id": "wheat", "name": "Wheat", "seasons": ["rabi"], "type": "Cereal" },
+  { "id": "maize", "name": "Maize", "seasons": ["kharif", "rabi"], "type": "Cereal" },
+  { "id": "millet", "name": "Millet (Bajra)", "seasons": ["kharif"], "type": "Millet" },
+  { "id": "cotton", "name": "Cotton", "seasons": ["kharif"], "type": "Cash Crop" },
+  { "id": "sugarcane", "name": "Sugarcane", "seasons": ["kharif"], "type": "Cash Crop" },
+  { "id": "soybean", "name": "Soybean", "seasons": ["kharif"], "type": "Oilseed" },
+  { "id": "mustard", "name": "Mustard", "seasons": ["rabi"], "type": "Oilseed" },
+  { "id": "chickpea", "name": "Chickpea (Chana)", "seasons": ["rabi"], "type": "Pulse" },
+  { "id": "pigeonpea", "name": "Pigeonpea (Tur/Arhar)", "seasons": ["kharif"], "type": "Pulse" },
+  { "id": "tomato", "name": "Tomato", "seasons": ["rabi", "zaid"], "type": "Vegetable" },
+  { "id": "potato", "name": "Potato", "seasons": ["rabi"], "type": "Vegetable" }
+]

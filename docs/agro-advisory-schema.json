@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agrisetu.dev/schemas/agro-advisory-record/v1",
+  "title": "Agro-Advisory Record",
+  "description": "A standardized, interoperable record representing one localized agro-advisory. Designed so any BRICS AgriN node (India, Brazil, Russia, China, South Africa + partners) can emit and consume the same structure, enabling cross-border data sharing, comparison, and cooperative model-building.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "issuedAt", "location", "advisory"],
+  "properties": {
+    "schemaVersion": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Semver of this schema. Consumers MUST check it and can safely parse any version with the same major number."
+    },
+    "id": {
+      "type": "string",
+      "description": "Globally unique record id, e.g. UUID or node-code + timestamp (e.g. 'IN-LD-20260815-001')."
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the advisory was generated."
+    },
+    "issuer": {
+      "type": "object",
+      "description": "Which node/agency produced the record — enables attribution and trust across borders.",
+      "properties": {
+        "nodeCode": { "type": "string", "examples": ["IN-AGRI", "BR-EMBRAPA"] },
+        "name": { "type": "string" },
+        "contact": { "type": "string", "format": "uri" }
+      },
+      "required": ["nodeCode", "name"]
+    },
+    "language": {
+      "type": "string",
+      "default": "en",
+      "description": "BCP-47 language tag of the human-readable advisory fields. The rest of the record is language-neutral."
+    },
+    "location": {
+      "type": "object",
+      "required": ["place", "lat", "lng"],
+      "properties": {
+        "place": {
+          "type": "object",
+          "properties": {
+            "country": { "type": "string", "examples": ["IN", "BR", "RU", "CN", "ZA"] },
+            "state": { "type": "string" },
+            "district": { "type": "string" }
+          }
+        },
+        "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+        "lng": { "type": "number", "minimum": -180, "maximum": 180 },
+        "elevationM": { "type": "number" }
+      }
+    },
+    "context": {
+      "type": "object",
+      "description": "The input data the advisory is based on.",
+      "properties": {
+        "crop": {
+          "type": "object",
+          "required": ["name"],
+          "properties": {
+            "name": { "type": "string", "examples": ["Rice", "Wheat"] },
+            "variety": { "type": "string" },
+            "cropType": { "type": "string", "examples": ["Cereal", "Pulse", "Oilseed", "Vegetable", "Cash Crop"] }
+          }
+        },
+        "season": {
+          "type": "string",
+          "enum": ["kharif", "rabi", "zaid", "winter", "summer", "monsoon", "other"],
+          "description": "Season token. Enum is extendable; unknown values fall back to 'other'."
+        },
+        "soil": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string" },
+            "ph": { "type": "number" },
+            "organicCarbonPct": { "type": "number" }
+          }
+        },
+        "weather": {
+          "type": "object",
+          "properties": {
+            "tempC": { "type": "number" },
+            "rainfallMm": { "type": "number" },
+            "humidityPct": { "type": "number" },
+            "source": { "type": "string", "examples": ["imd", "openweathermap", "sample-data"] }
+          }
+        }
+      },
+      "required": ["crop", "season"]
+    },
+    "advisory": {
+      "type": "object",
+      "description": "The AI-generated advisory output.",
+      "required": ["summary"],
+      "properties": {
+        "summary": { "type": "string" },
+        "irrigation": { "type": "string" },
+        "fertilizer": { "type": "string" },
+        "sowingWindow": { "type": "string" },
+        "harvestWindow": { "type": "string" },
+        "risks": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "regenerativeTips": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "soilHealth": {
+          "type": "object",
+          "properties": {
+            "score": { "type": "number", "minimum": 0, "maximum": 100 },
+            "note": { "type": "string" }
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Trust & traceability: how the advisory was produced and which data sources fed it.",
+      "properties": {
+        "model": { "type": "string", "examples": ["claude-sonnet-4-20250514"] },
+        "generator": { "type": "string", "examples": ["ai", "rule-based", "human"] },
+        "dataSources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "url": { "type": "string", "format": "uri" },
+              "type": { "type": "string", "examples": ["weather", "soil", "satellite"] }
+            }
+          }
+        }
+      }
+    }
+  },
+  "additionalProperties": true,
+  "examples": [
+    {
+      "schemaVersion": "1.0.0",
+      "id": "IN-LD-20260815-001",
+      "issuedAt": "2026-08-15T10:30:00Z",
+      "issuer": { "nodeCode": "IN-AGRI", "name": "AgriSetu India Node" },
+      "language": "en",
+      "location": { "place": { "country": "IN", "state": "Punjab", "district": "Ludhiana" }, "lat": 30.901, "lng": 75.8573 },
+      "context": {
+        "crop": { "name": "Rice", "cropType": "Cereal" },
+        "season": "kharif",
+        "soil": { "type": "Alluvial Loam", "ph": 7.2, "organicCarbonPct": 0.55 },
+        "weather": { "tempC": 35, "rainfallMm": 504, "humidityPct": 55, "source": "sample-data" }
+      },
+      "advisory": {
+        "summary": "For Rice in Ludhiana, Punjab this kharif season…",
+        "irrigation": "Irrigate every 5-7 days…",
+        "risks": ["Low rainfall — plan supplemental irrigation"],
+        "regenerativeTips": ["Rotate with legumes next season"]
+      },
+      "provenance": { "model": "claude-sonnet-4-20250514", "generator": "ai", "dataSources": [{ "name": "Sample district dataset", "type": "soil" }] }
+    }
+  ]
+}

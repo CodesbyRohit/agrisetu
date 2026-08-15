@@ -1,0 +1,152 @@
+[
+  {
+    "id": "ludhiana",
+    "name": "Ludhiana",
+    "state": "Punjab",
+    "lat": 30.901,
+    "lng": 75.8573,
+    "soil": { "type": "Alluvial Loam", "ph": 7.2, "organicCarbonPct": 0.55 },
+    "weather": { "tempC": 33, "rainfallMm": 420, "humidityPct": 55 },
+    "ndvi": 0.72
+  },
+  {
+    "id": "jalandhar",
+    "name": "Jalandhar",
+    "state": "Punjab",
+    "lat": 31.3256,
+    "lng": 75.5792,
+    "soil": { "type": "Alluvial Loam", "ph": 7.0, "organicCarbonPct": 0.5 },
+    "weather": { "tempC": 32, "rainfallMm": 460, "humidityPct": 58 },
+    "ndvi": 0.7
+  },
+  {
+    "id": "varanasi",
+    "name": "Varanasi",
+    "state": "Uttar Pradesh",
+    "lat": 25.3176,
+    "lng": 82.9739,
+    "soil": { "type": "Sandy Loam", "ph": 7.5, "organicCarbonPct": 0.4 },
+    "weather": { "tempC": 35, "rainfallMm": 980, "humidityPct": 65 },
+    "ndvi": 0.63
+  },
+  {
+    "id": "patna",
+    "name": "Patna",
+    "state": "Bihar",
+    "lat": 25.5941,
+    "lng": 85.1376,
+    "soil": { "type": "Alluvial Loam", "ph": 7.3, "organicCarbonPct": 0.52 },
+    "weather": { "tempC": 34, "rainfallMm": 1050, "humidityPct": 70 },
+    "ndvi": 0.66
+  },
+  {
+    "id": "nagpur",
+    "name": "Nagpur",
+    "state": "Maharashtra",
+    "lat": 21.1458,
+    "lng": 79.0882,
+    "soil": { "type": "Black Cotton Soil", "ph": 7.8, "organicCarbonPct": 0.6 },
+    "weather": { "tempC": 36, "rainfallMm": 1050, "humidityPct": 60 },
+    "ndvi": 0.55
+  },
+  {
+    "id": "amravati",
+    "name": "Amravati",
+    "state": "Maharashtra",
+    "lat": 20.9333,
+    "lng": 77.75,
+    "soil": { "type": "Black Cotton Soil", "ph": 7.9, "organicCarbonPct": 0.58 },
+    "weather": { "tempC": 35, "rainfallMm": 900, "humidityPct": 58 },
+    "ndvi": 0.52
+  },
+  {
+    "id": "indore",
+    "name": "Indore",
+    "state": "Madhya Pradesh",
+    "lat": 22.7196,
+    "lng": 75.8577,
+    "soil": { "type": "Black Cotton Soil", "ph": 7.6, "organicCarbonPct": 0.62 },
+    "weather": { "tempC": 34, "rainfallMm": 950, "humidityPct": 55 },
+    "ndvi": 0.58
+  },
+  {
+    "id": "raipur",
+    "name": "Raipur",
+    "state": "Chhattisgarh",
+    "lat": 21.2514,
+    "lng": 81.6296,
+    "soil": { "type": "Clayey Red-Yellow Soil", "ph": 6.4, "organicCarbonPct": 0.45 },
+    "weather": { "tempC": 35, "rainfallMm": 1250, "humidityPct": 72 },
+    "ndvi": 0.62
+  },
+  {
+    "id": "guntur",
+    "name": "Guntur",
+    "state": "Andhra Pradesh",
+    "lat": 16.3067,
+    "lng": 80.4365,
+    "soil": { "type": "Black Cotton Soil", "ph": 7.7, "organicCarbonPct": 0.5 },
+    "weather": { "tempC": 35, "rainfallMm": 750, "humidityPct": 68 },
+    "ndvi": 0.6
+  },
+  {
+    "id": "kurnool",
+    "name": "Kurnool",
+    "state": "Andhra Pradesh",
+    "lat": 15.8281,
+    "lng": 78.0373,
+    "soil": { "type": "Red Sandy Soil", "ph": 6.8, "organicCarbonPct": 0.38 },
+    "weather": { "tempC": 36, "rainfallMm": 650, "humidityPct": 60 },
+    "ndvi": 0.45
+  },
+  {
+    "id": "thanjavur",
+    "name": "Thanjavur",
+    "state": "Tamil Nadu",
+    "lat": 10.787,
+    "lng": 79.1378,
+    "soil": { "type": "Deltaic Alluvial Soil", "ph": 7.4, "organicCarbonPct": 0.48 },
+    "weather": { "tempC": 33, "rainfallMm": 850, "humidityPct": 75 },
+    "ndvi": 0.68
+  },
+  {
+    "id": "coimbatore",
+    "name": "Coimbatore",
+    "state": "Tamil Nadu",
+    "lat": 11.0168,
+    "lng": 76.9558,
+    "soil": { "type": "Red Sandy Loam", "ph": 6.6, "organicCarbonPct": 0.42 },
+    "weather": { "tempC": 34, "rainfallMm": 600, "humidityPct": 62 },
+    "ndvi": 0.55
+  },
+  {
+    "id": "vijayapura",
+    "name": "Vijayapura (Bijapur)",
+    "state": "Karnataka",
+    "lat": 16.8302,
+    "lng": 75.71,
+    "soil": { "type": "Black Cotton Soil", "ph": 8.0, "organicCarbonPct": 0.5 },
+    "weather": { "tempC": 36, "rainfallMm": 550, "humidityPct": 50 },
+    "ndvi": 0.42
+  },
+  {
+    "id": "anand",
+    "name": "Anand",
+    "state": "Gujarat",
+    "lat": 22.5645,
+    "lng": 72.9289,
+    "soil": { "type": "Alluvial Loam", "ph": 7.6, "organicCarbonPct": 0.47 },
+    "weather": { "tempC": 35, "rainfallMm": 800, "humidityPct": 65 },
+    "ndvi": 0.6
+  },
+  {
+    "id": "ganjam",
+    "name": "Ganjam (Berhampur)",
+    "state": "Odisha",
+    "lat": 19.315,
+    "lng": 84.7941,
+    "soil": { "type": "Coastal Alluvial Soil", "ph": 6.8, "organicCarbonPct": 0.5 },
+    "weather": { "tempC": 33, "rainfallMm": 1300, "humidityPct": 78 },
+    "ndvi": 0.65
+  }
+]

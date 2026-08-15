@@ -1,0 +1,82 @@
+[
+  {
+    "id": "rice_blast",
+    "disease": "Rice Blast",
+    "crop": "Rice",
+    "symptoms": "Diamond-shaped spots with grey centres and brown borders on leaves; neck blast on panicles.",
+    "treatment": "Spray tricyclazole (0.6 g/L) or carbendazim (1 g/L) at first signs; repeat after 10-14 days.",
+    "prevention": "Use resistant varieties, avoid excess nitrogen, keep fields drained between irrigations."
+  },
+  {
+    "id": "wheat_rust",
+    "disease": "Wheat Rust (Yellow/Brown)",
+    "crop": "Wheat",
+    "symptoms": "Yellow-orange pustules (stripes) on leaves that release powdery spores.",
+    "treatment": "Spray propiconazole (1 mL/L) or tebuconazole as soon as pustules appear; repeat after 15 days.",
+    "prevention": "Sow resistant varieties, early sowing, avoid late irrigation stress, rogue volunteer plants."
+  },
+  {
+    "id": "cotton_leaf_curl",
+    "disease": "Cotton Leaf Curl Virus",
+    "crop": "Cotton",
+    "symptoms": "Upward/downward curling of leaves, thickened veins, stunted growth, reduced bolls.",
+    "treatment": "No chemical cure; control whitefly vector with imidacloprid (0.3 mL/L); remove and destroy infected plants.",
+    "prevention": "Grow tolerant hybrids, rogue infected plants early, avoid cotton near old infected fields."
+  },
+  {
+    "id": "early_blight",
+    "disease": "Early Blight",
+    "crop": "Tomato",
+    "symptoms": "Dark brown spots with concentric rings (target board pattern) on older leaves.",
+    "treatment": "Spray mancozeb (2 g/L) or chlorothalonil (2 g/L) every 10 days during humid weather.",
+    "prevention": "Crop rotation, stake plants for airflow, avoid overhead watering in the evening."
+  },
+  {
+    "id": "late_blight",
+    "disease": "Late Blight",
+    "crop": "Potato",
+    "symptoms": "Water-soaked dark patches on leaves with white fungal growth on undersides in humid weather.",
+    "treatment": "Spray metalaxyl + mancozeb (2.5 g/L) immediately; remove affected plants if severe.",
+    "prevention": "Use certified seed, avoid dense planting, destroy volunteer potatoes."
+  },
+  {
+    "id": "powdery_mildew",
+    "disease": "Powdery Mildew",
+    "crop": "Multiple crops",
+    "symptoms": "White powdery coating on leaves and stems, yellowing and leaf drop.",
+    "treatment": "Spray wettable sulphur (2 g/L) or hexaconazole (1 mL/L) at first appearance.",
+    "prevention": "Good air circulation, avoid excess nitrogen, sulphur dusting in early morning."
+  },
+  {
+    "id": "leaf_spot",
+    "disease": "Leaf Spot (Alternaria/Cercospora)",
+    "crop": "Multiple crops",
+    "symptoms": "Small circular brown/black spots with yellow halos that enlarge and merge.",
+    "treatment": "Spray mancozeb (2 g/L) or carbendazim (1 g/L); repeat after 10-12 days.",
+    "prevention": "Crop rotation, remove crop debris, avoid overhead irrigation."
+  },
+  {
+    "id": "yellow_vein_mosaic",
+    "disease": "Yellow Vein Mosaic",
+    "crop": "Okra / Bhindi",
+    "symptoms": "Yellowing along leaf veins, mosaic pattern, stunted fruit set.",
+    "treatment": "No cure; control whitefly vector with imidacloprid; rogue infected plants.",
+    "prevention": "Grow resistant varieties, remove alternate weed hosts, use yellow sticky traps."
+  },
+  {
+    "id": "fall_armyworm",
+    "disease": "Fall Armyworm",
+    "crop": "Maize",
+    "symptoms": "Window-pane damage on young leaves, ragged feeding, frass (sawdust-like) in whorl.",
+    "treatment": "Apply emamectin benzoate (0.4 g/L) or spinetoram in the whorl; hand-pick egg masses.",
+    "prevention": "Early sowing, intercropping with legumes, pheromone traps, biocontrol with Trichogramma."
+  },
+  {
+    "id": "bollworm",
+    "disease": "Cotton Bollworm (Pink/Spotted)",
+    "crop": "Cotton",
+    "symptoms": "Holes in young bolls, damaged flowers, larval entry points with droppings.",
+    "treatment": "Spray chlorantraniliprole (0.3 mL/L) at egg hatch; use pheromone traps for monitoring.",
+    "prevention": "Timely sowing, intercropping, hand-picking damaged bolls, avoid late-season crop."
+  }
+]
