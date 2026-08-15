@@ -1,6 +1,8 @@
 import type { Advisory } from "./types";
 import { claudeJson, hasApiKey } from "./llm";
-import { buildContext, SEASONS, type AgroContext } from "./data";
+import { buildContext, getDistricts, SEASONS, type AgroContext } from "./data";
+import { getLiveWeather } from "./weather";
+import { getLiveSoil, regionalSoil } from "./soil";
 
 // ---------------------------------------------------------------------------
 // Module A: Localized Agro-Advisory
@@ -51,32 +53,55 @@ WEATHER FORECAST (season-adjusted estimate)
 Give advice covering: irrigation timing, fertilizer/dose guidance, sowing window, harvest window, top 3 risks for this crop in this region, and 2-3 regenerative practices. Keep each field under 3 sentences.`;
 }
 
-/** Generate an advisory using Claude when an API key is present. */
-export async function generateAdvisoryWithAI(
+/**
+ * Baseline context enriched with live data for the district coordinate:
+ * current temperature/humidity + seasonal rainfall (Open-Meteo) and regional
+ * soil (SoilGrids, falling back to the state-level ICAR layer). Any live
+ * source that fails (network, service down) keeps its baseline value, so the
+ * advisory never blocks on an unreachable API.
+ */
+async function buildLiveContext(
   districtId: string,
   cropId: string,
   season: "kharif" | "rabi" | "zaid"
-): Promise<Advisory> {
-  const ctx = buildContext(districtId, cropId, season);
-  const advisory = await claudeJson<Advisory>({
+): Promise<AgroContext> {
+  const base = buildContext(districtId, cropId, season);
+  const { lat, lng } = base.district;
+  if (!lat || !lng) return base; // no coordinate — use the baseline as-is
+
+  const isCurated = getDistricts().some((d) => d.id === districtId);
+  const [weather, soil] = await Promise.allSettled([
+    getLiveWeather(lat, lng, season, base.weather),
+    getLiveSoil(lat, lng),
+  ]);
+
+  return {
+    ...base,
+    weather: weather.status === "fulfilled" ? weather.value : base.weather,
+    soil:
+      soil.status === "fulfilled"
+        ? soil.value
+        : isCurated
+          ? base.soil
+          : regionalSoil(base.district.state),
+  };
+}
+
+/** Generate an advisory from a live context using Claude. */
+async function generateAdvisoryWithAI(ctx: AgroContext): Promise<Advisory> {
+  return claudeJson<Advisory>({
     system: buildAdvisorySystemPrompt(),
     user: buildAdvisoryUserPrompt(ctx),
     maxTokens: 1200,
   });
-  return advisory;
 }
 
 /**
  * Deterministic demo fallback so the app still demos end-to-end without
  * an API key. Generates a structured advisory from the local datasets.
  */
-export function generateAdvisoryMock(
-  districtId: string,
-  cropId: string,
-  season: "kharif" | "rabi" | "zaid"
-): Advisory {
-  const ctx = buildContext(districtId, cropId, season);
-  const { district, crop, weather, soil } = ctx;
+export function generateAdvisoryMock(ctx: AgroContext): Advisory {
+  const { district, crop, weather, soil, season } = ctx;
 
   const waterStress = weather.rainfallMm < 600;
   const heatStress = weather.tempC > 35;
@@ -128,13 +153,14 @@ export async function generateAdvisory(
   cropId: string,
   season: "kharif" | "rabi" | "zaid"
 ): Promise<{ advisory: Advisory; source: "ai" | "demo" }> {
+  const ctx = await buildLiveContext(districtId, cropId, season);
   if (hasApiKey()) {
     try {
-      const advisory = await generateAdvisoryWithAI(districtId, cropId, season);
+      const advisory = await generateAdvisoryWithAI(ctx);
       return { advisory, source: "ai" };
     } catch (err) {
       console.error("Advisory AI call failed, falling back to demo:", err);
     }
   }
-  return { advisory: generateAdvisoryMock(districtId, cropId, season), source: "demo" };
+  return { advisory: generateAdvisoryMock(ctx), source: "demo" };
 }

@@ -33,8 +33,9 @@ function slugify(s: string): string {
 
 /**
  * Complete India districts dataset — all 762 districts across 36 states/UTs,
- * derived from the govt-sourced data-for-india dataset. Entries that match a
- * curated district keep its short id so existing lookups keep working.
+ * derived from the govt-sourced data-for-india dataset, each with official
+ * Survey of India boundary coordinates. Entries that match a curated district
+ * keep its short id so existing lookups keep working.
  */
 export function getAllDistricts(): DistrictRef[] {
   if (!allDistrictsCache) {
@@ -42,11 +43,13 @@ export function getAllDistricts(): DistrictRef[] {
     const curatedKeyToId = new Map(
       curated.map((d) => [`${d.name}|${d.state}`.toLowerCase(), d.id])
     );
-    const list = loadJson<{ state: string; district: string }[]>("india-districts.json");
+    const list = loadJson<{ state: string; district: string; lat: number; lng: number }[]>(
+      "india-districts.json"
+    );
     allDistrictsCache = list.map((d) => {
       const key = `${d.district}|${d.state}`.toLowerCase();
       const id = curatedKeyToId.get(key) ?? slugify(`${d.district} ${d.state}`);
-      return { ...d, id };
+      return { state: d.state, district: d.district, id, lat: d.lat, lng: d.lng };
     });
   }
   return allDistrictsCache;
@@ -61,14 +64,16 @@ export function getDistrict(id: string): District | undefined {
   if (curated) return curated;
   const ref = getAllDistricts().find((d) => d.id === id);
   if (!ref) return undefined;
-  // Deterministic demo context so any district in the complete dataset works
-  // end-to-end (weather/soil layers remain the documented demo layer).
+  // Deterministic baseline context so any district in the complete dataset
+  // works end-to-end. The advisory route enriches this with live weather and
+  // regional soil (see lib/weather.ts, lib/soil.ts); the values below are the
+  // documented offline fallback.
   return {
     id: ref.id,
     name: ref.district,
     state: ref.state,
-    lat: 0,
-    lng: 0,
+    lat: ref.lat,
+    lng: ref.lng,
     soil: { ...DEFAULT_SOIL },
     weather: { ...DEFAULT_WEATHER },
     ndvi: 0.55,

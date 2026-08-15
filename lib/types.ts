@@ -23,14 +23,15 @@ export interface District {
   ndvi: number; // 0-1 vegetation/health indicator
 }
 
-/** A district from the complete India districts dataset. */
-export interface DistrictOption {
+/** A district from the complete India districts dataset, with official
+ * coordinates (Survey of India district-boundary centroid). */
+export interface DistrictRef {
   state: string;
   district: string;
+  id: string;
+  lat: number;
+  lng: number;
 }
-
-/** DistrictOption with a stable lookup id. */
-export type DistrictRef = DistrictOption & { id: string };
 
 export type Season = "kharif" | "rabi" | "zaid";
 
