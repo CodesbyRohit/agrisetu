@@ -18,6 +18,9 @@ export default function SoilGauge({ score, className }: Props) {
   const start = polar(cx, cy, r, 180);
   const end = polar(cx, cy, r, 0);
   const angle = 180 - (s / 100) * 180;
+  // Fill boundary lives ON the track circle; the needle is a shorter spoke at the
+  // same angle, so its tip always lands exactly on the filled-arc boundary.
+  const arcEnd = polar(cx, cy, r, angle);
   const tip = polar(cx, cy, r - 18, angle);
   const color = s >= 65 ? "#3f8342" : s >= 45 ? "#d98e2b" : "#cf5a3c";
 
@@ -31,7 +34,7 @@ export default function SoilGauge({ score, className }: Props) {
         strokeLinecap="round"
       />
       <path
-        d={`M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${tip.x} ${tip.y}`}
+        d={`M ${start.x} ${start.y} A ${r} ${r} 0 0 1 ${arcEnd.x} ${arcEnd.y}`}
         fill="none"
         stroke={color}
         strokeWidth="14"
