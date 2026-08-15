@@ -5,6 +5,8 @@ agro-advisories, AI crop disease diagnosis from a photo, and a soil/vegetation
 health indicator — built as a scalable digital public good aligned with the
 **BRICS AgriN** initiative.
 
+> 🚀 **Live demo:** [agrisetu-lyart.vercel.app](https://agrisetu-lyart.vercel.app/)
+
 *Built for: Build with AI — Code for Communities, 2nd Edition · Track 4 (AgriN & Regenerative Agricultural Intelligence)*
 
 ---
@@ -34,6 +36,14 @@ npm run dev                    # http://localhost:3000
 ```
 
 Production: `npm run build && npm start`, or deploy straight to Vercel (no separate backend).
+
+## Deployment
+
+The app is deployed to Vercel — no separate backend required.
+
+- **Live URL:** <https://agrisetu-lyart.vercel.app/>
+- Vercel auto-deploys on every push to `main` (if connected via the Vercel dashboard).
+- Set `ANTHROPIC_API_KEY` as an environment variable in the Vercel project settings.
 
 ## Project Structure
 
