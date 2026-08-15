@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import path from "path";
-import type { Crop, District, Season, SoilInfo, WeatherInfo } from "./types";
+import type { Crop, District, DistrictRef, Season, SoilInfo, WeatherInfo } from "./types";
 
 // ---- Static data loading (server-side only) ----
 
@@ -11,7 +11,9 @@ function loadJson<T>(file: string): T {
 
 let districtsCache: District[] | null = null;
 let cropsCache: Crop[] | null = null;
+let allDistrictsCache: DistrictRef[] | null = null;
 
+/** Curated districts that carry demo soil/weather/NDVI layers (soil-health page). */
 export function getDistricts(): District[] {
   if (!districtsCache) districtsCache = loadJson<District[]>("districts.json");
   return districtsCache;
@@ -22,8 +24,55 @@ export function getCrops(): Crop[] {
   return cropsCache;
 }
 
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/**
+ * Complete India districts dataset — all 762 districts across 36 states/UTs,
+ * derived from the govt-sourced data-for-india dataset. Entries that match a
+ * curated district keep its short id so existing lookups keep working.
+ */
+export function getAllDistricts(): DistrictRef[] {
+  if (!allDistrictsCache) {
+    const curated = getDistricts();
+    const curatedKeyToId = new Map(
+      curated.map((d) => [`${d.name}|${d.state}`.toLowerCase(), d.id])
+    );
+    const list = loadJson<{ state: string; district: string }[]>("india-districts.json");
+    allDistrictsCache = list.map((d) => {
+      const key = `${d.district}|${d.state}`.toLowerCase();
+      const id = curatedKeyToId.get(key) ?? slugify(`${d.district} ${d.state}`);
+      return { ...d, id };
+    });
+  }
+  return allDistrictsCache;
+}
+
+/** Default demo values for districts without a curated soil/weather layer. */
+const DEFAULT_SOIL: SoilInfo = { type: "Alluvial", ph: 6.8, organicCarbonPct: 0.5 };
+const DEFAULT_WEATHER: WeatherInfo = { tempC: 32, rainfallMm: 900, humidityPct: 60 };
+
 export function getDistrict(id: string): District | undefined {
-  return getDistricts().find((d) => d.id === id);
+  const curated = getDistricts().find((d) => d.id === id);
+  if (curated) return curated;
+  const ref = getAllDistricts().find((d) => d.id === id);
+  if (!ref) return undefined;
+  // Deterministic demo context so any district in the complete dataset works
+  // end-to-end (weather/soil layers remain the documented demo layer).
+  return {
+    id: ref.id,
+    name: ref.district,
+    state: ref.state,
+    lat: 0,
+    lng: 0,
+    soil: { ...DEFAULT_SOIL },
+    weather: { ...DEFAULT_WEATHER },
+    ndvi: 0.55,
+  };
 }
 
 export function getCrop(id: string): Crop | undefined {

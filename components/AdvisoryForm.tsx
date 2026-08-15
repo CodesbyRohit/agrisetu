@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import type { Advisory, Crop, District, Season } from "@/lib/types";
+import { useMemo, useState } from "react";
+import type { Advisory, Crop, District, DistrictRef, Season } from "@/lib/types";
 import {
   AlertTriangleIcon,
   ArrowRightIcon,
   CalendarIcon,
   CheckIcon,
+  ChevronDownIcon,
   ChevronLeftIcon,
   DropletIcon,
   LeafIcon,
@@ -20,7 +21,10 @@ import {
 import SoilGauge from "@/components/SoilGauge";
 
 interface Props {
-  districts: District[];
+  /** Complete India districts dataset — used for the searchable dropdown. */
+  districtOptions: DistrictRef[];
+  /** Curated districts that carry soil/weather demo layers (context line). */
+  curatedDistricts: District[];
   crops: Crop[];
 }
 
@@ -39,21 +43,27 @@ const CROP_ICONS: Record<string, typeof WheatIcon> = {
   Vegetable: LeafIcon,
 };
 
+/** Cap matches while typing so the list stays snappy on low-end phones. */
+const MAX_VISIBLE = 100;
+
 type State =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "error"; message: string }
   | { status: "done"; advisory: Advisory; source: "ai" | "demo" };
 
-export default function AdvisoryForm({ districts, crops }: Props) {
+export default function AdvisoryForm({ districtOptions, curatedDistricts, crops }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [districtId, setDistrictId] = useState("");
+  const [districtQuery, setDistrictQuery] = useState("");
+  const [districtOpen, setDistrictOpen] = useState(false);
   const [cropId, setCropId] = useState("");
   const [cropSearch, setCropSearch] = useState("");
   const [season, setSeason] = useState<Season>("kharif");
   const [state, setState] = useState<State>({ status: "idle" });
 
-  const district = districts.find((d) => d.id === districtId);
+  const districtRef = districtOptions.find((d) => d.id === districtId);
+  const districtDetail = curatedDistricts.find((d) => d.id === districtId);
   const crop = crops.find((c) => c.id === cropId);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -70,7 +80,7 @@ export default function AdvisoryForm({ districts, crops }: Props) {
       if (!res.ok) {
         setState({
           status: "error",
-          message: data.error || "We couldn't prepare your advisory right now. Please try again.",
+          message: data.error || "We couldn’t prepare your advisory right now. Please try again.",
         });
         return;
       }
@@ -86,6 +96,47 @@ export default function AdvisoryForm({ districts, crops }: Props) {
   const filteredCrops = cropSearch.trim()
     ? crops.filter((c) => c.name.toLowerCase().includes(cropSearch.trim().toLowerCase()))
     : crops;
+
+  // ---- District typeahead (client-side filter over the preloaded dataset) ----
+  const filteredDistricts = useMemo(() => {
+    const q = districtQuery.trim().toLowerCase();
+    if (!q) return districtOptions;
+    return districtOptions.filter(
+      (d) =>
+        d.district.toLowerCase().includes(q) ||
+        d.state.toLowerCase().includes(q)
+    );
+  }, [districtOptions, districtQuery]);
+
+  const groupedDistricts = useMemo(() => {
+    if (districtQuery.trim()) return null; // flat list while searching
+    const groups: { state: string; items: DistrictRef[] }[] = [];
+    for (const d of filteredDistricts) {
+      const last = groups[groups.length - 1];
+      if (last && last.state === d.state) last.items.push(d);
+      else groups.push({ state: d.state, items: [d] });
+    }
+    return groups;
+  }, [filteredDistricts, districtQuery]);
+
+  const visibleDistricts = filteredDistricts.slice(0, MAX_VISIBLE);
+  const truncated = filteredDistricts.length > MAX_VISIBLE;
+
+  function selectDistrict(d: DistrictRef) {
+    setDistrictId(d.id);
+    setDistrictQuery(`${d.district}, ${d.state}`);
+    setDistrictOpen(false);
+  }
+
+  function handleDistrictKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") setDistrictOpen(false);
+    if (e.key === "Enter") {
+      if (visibleDistricts.length === 1) {
+        e.preventDefault();
+        selectDistrict(visibleDistricts[0]);
+      }
+    }
+  }
 
   const stepLabel = step === 1 ? "Where do you farm?" : step === 2 ? "What do you grow?" : "Which season is it?";
 
@@ -109,27 +160,107 @@ export default function AdvisoryForm({ districts, crops }: Props) {
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           {step === 1 && (
             <div className="flex flex-col gap-3">
-              <label htmlFor="district" className="flex items-center gap-2 text-base font-semibold text-ink">
+              <label htmlFor="district-search" className="flex items-center gap-2 text-base font-semibold text-ink">
                 <MapPinIcon className="h-5 w-5 text-leaf-600" />
                 Choose your district
               </label>
-              <select
-                id="district"
-                value={districtId}
-                onChange={(e) => setDistrictId(e.target.value)}
-                className="w-full appearance-none rounded-2xl border-2 border-soil-200 bg-paper px-4 py-4 text-lg font-medium text-ink outline-none transition-colors focus:border-leaf-500"
-              >
-                <option value="">Tap to choose…</option>
-                {districts.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name}, {d.state}
-                  </option>
-                ))}
-              </select>
-              {district && (
+
+              <div className="relative">
+                {/* Tap anywhere else to close the list */}
+                {districtOpen && (
+                  <button
+                    type="button"
+                    aria-label="Close district list"
+                    onClick={() => setDistrictOpen(false)}
+                    className="fixed inset-0 z-10 cursor-default bg-transparent"
+                  />
+                )}
+
+                <div className="relative z-20">
+                  <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-soft" />
+                  <input
+                    id="district-search"
+                    type="search"
+                    role="combobox"
+                    aria-expanded={districtOpen}
+                    aria-controls="district-listbox"
+                    aria-autocomplete="list"
+                    placeholder="Type a district or state…"
+                    value={districtQuery}
+                    onChange={(e) => {
+                      setDistrictQuery(e.target.value);
+                      setDistrictId("");
+                      setDistrictOpen(true);
+                    }}
+                    onFocus={() => setDistrictOpen(true)}
+                    onKeyDown={handleDistrictKeyDown}
+                    className="w-full rounded-2xl border-2 border-soil-200 bg-paper py-4 pl-11 pr-11 text-base font-medium text-ink outline-none transition-colors focus:border-leaf-500"
+                  />
+                  <ChevronDownIcon className="pointer-events-none absolute right-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-soft" />
+                </div>
+
+                {districtOpen && (
+                  <div
+                    id="district-listbox"
+                    role="listbox"
+                    aria-label="Districts"
+                    className="absolute left-0 right-0 top-full z-20 mt-2 max-h-80 overflow-y-auto rounded-2xl border-2 border-soil-200 bg-white shadow-lg"
+                  >
+                    {groupedDistricts ? (
+                      groupedDistricts.map((g) => (
+                        <div key={g.state}>
+                          <p className="sticky top-0 bg-paper px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.14em] text-soil-600">
+                            {g.state}
+                          </p>
+                          {g.items.map((d) => (
+                            <DistrictOption
+                              key={d.id}
+                              district={d}
+                              selected={d.id === districtId}
+                              onSelect={selectDistrict}
+                            />
+                          ))}
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        {visibleDistricts.map((d) => (
+                          <DistrictOption
+                            key={d.id}
+                            district={d}
+                            selected={d.id === districtId}
+                            onSelect={selectDistrict}
+                          />
+                        ))}
+                        {filteredDistricts.length === 0 && (
+                          <p className="px-4 py-4 text-sm text-ink-soft">
+                            No district or state matches “{districtQuery}”. Try another spelling.
+                          </p>
+                        )}
+                        {truncated && (
+                          <p className="sticky bottom-0 border-t border-soil-100 bg-paper px-4 py-2 text-xs font-medium text-ink-soft">
+                            Showing first {MAX_VISIBLE} — keep typing to narrow the list
+                          </p>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {districtId && districtRef && (
                 <p className="rounded-xl bg-leaf-50 px-3 py-2 text-sm text-leaf-800">
-                  {district.name}, {district.state} — {district.soil.type} soil · about{" "}
-                  {district.weather.tempC}°C and {district.weather.rainfallMm} mm rain this season
+                  {districtDetail ? (
+                    <>
+                      {districtDetail.name}, {districtDetail.state} — {districtDetail.soil.type} soil · about{" "}
+                      {districtDetail.weather.tempC}°C and {districtDetail.weather.rainfallMm} mm rain this season
+                    </>
+                  ) : (
+                    <>
+                      {districtRef.district}, {districtRef.state} — we’ll prepare your advisory with local soil and
+                      weather.
+                    </>
+                  )}
                 </p>
               )}
             </div>
@@ -234,7 +365,7 @@ export default function AdvisoryForm({ districts, crops }: Props) {
                 })}
               </div>
               <p className="text-sm text-ink-soft">
-                {district ? `${district.name}, ${district.state} · ` : ""}
+                {districtRef ? `${districtRef.district}, ${districtRef.state} · ` : ""}
                 {crop ? crop.name : "your crop"} — we’ll use local soil and weather for this season.
               </p>
             </div>
@@ -306,7 +437,7 @@ export default function AdvisoryForm({ districts, crops }: Props) {
         <FieldBulletin
           advisory={state.advisory}
           source={state.source}
-          district={district}
+          districtLabel={districtRef ? `${districtRef.district}, ${districtRef.state}` : undefined}
           crop={crop}
           season={season}
         />
@@ -315,23 +446,53 @@ export default function AdvisoryForm({ districts, crops }: Props) {
   );
 }
 
+function DistrictOption({
+  district,
+  selected,
+  onSelect,
+}: {
+  district: DistrictRef;
+  selected: boolean;
+  onSelect: (d: DistrictRef) => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="option"
+      aria-selected={selected}
+      onClick={() => onSelect(district)}
+      className={`flex w-full items-center justify-between gap-2 px-4 py-3 text-left transition-colors ${
+        selected ? "bg-leaf-50" : "hover:bg-soil-50"
+      }`}
+    >
+      <span className="min-w-0">
+        <span className="block truncate text-base font-medium text-ink">{district.district}</span>
+        <span className="block truncate text-sm text-ink-soft">{district.state}</span>
+      </span>
+      {selected && (
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-leaf-600 text-white">
+          <CheckIcon className="h-3.5 w-3.5" />
+        </span>
+      )}
+    </button>
+  );
+}
+
 function FieldBulletin({
   advisory,
   source,
-  district,
+  districtLabel,
   crop,
   season,
 }: {
   advisory: Advisory;
   source: "ai" | "demo";
-  district?: District;
+  districtLabel?: string;
   crop?: Crop;
   season: Season;
 }) {
   const seasonLabel = seasons.find((s) => s.value === season)?.short ?? season;
-  const context = [district ? `${district.name}, ${district.state}` : null, crop?.name, seasonLabel]
-    .filter(Boolean)
-    .join(" · ");
+  const context = [districtLabel, crop?.name, seasonLabel].filter(Boolean).join(" · ");
 
   return (
     <div className="overflow-hidden rounded-3xl border border-soil-200 bg-white shadow-sm">

@@ -115,6 +115,14 @@ export function ChevronLeftIcon(p: P) {
   );
 }
 
+export function ChevronDownIcon(p: P) {
+  return (
+    <Svg {...p}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  );
+}
+
 export function ArrowRightIcon(p: P) {
   return (
     <Svg {...p}>

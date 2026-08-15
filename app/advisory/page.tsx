@@ -1,10 +1,14 @@
 import AdvisoryForm from "@/components/AdvisoryForm";
-import { getCrops, getDistricts } from "@/lib/data";
+import { getAllDistricts, getCrops, getDistricts } from "@/lib/data";
 
 export const dynamic = "force-static";
 
 export default function AdvisoryPage() {
-  const districts = getDistricts();
+  // Full India districts dataset (762 districts, 36 states/UTs) for the
+  // searchable dropdown, plus the curated districts that carry real
+  // soil/weather demo layers for the context line.
+  const districtOptions = getAllDistricts();
+  const curatedDistricts = getDistricts();
   const crops = getCrops();
 
   return (
@@ -18,7 +22,11 @@ export default function AdvisoryPage() {
           fertilizer, and timing for your crop.
         </p>
       </div>
-      <AdvisoryForm districts={districts} crops={crops} />
+      <AdvisoryForm
+        districtOptions={districtOptions}
+        curatedDistricts={curatedDistricts}
+        crops={crops}
+      />
     </div>
   );
 }
