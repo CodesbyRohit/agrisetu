@@ -27,12 +27,12 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { advisory, source } = await generateAdvisory(
+    const { advisory, source, provenance } = await generateAdvisory(
       districtId,
       cropId,
       season as Season
     );
-    return NextResponse.json({ advisory, source });
+    return NextResponse.json({ advisory, source, provenance });
   } catch (err) {
     console.error("Advisory endpoint error:", err);
     return NextResponse.json(

@@ -1,4 +1,4 @@
-import type { Advisory } from "./types";
+import type { Advisory, DataProvenance } from "./types";
 import { claudeJson, hasApiKey } from "./llm";
 import { buildContext, getDistricts, SEASONS, type AgroContext } from "./data";
 import { getLiveWeather } from "./weather";
@@ -59,15 +59,22 @@ Give advice covering: irrigation timing, fertilizer/dose guidance, sowing window
  * soil (SoilGrids, falling back to the state-level ICAR layer). Any live
  * source that fails (network, service down) keeps its baseline value, so the
  * advisory never blocks on an unreachable API.
+ *
+ * Also reports where each value came from, so the UI can label it honestly.
  */
 async function buildLiveContext(
   districtId: string,
   cropId: string,
   season: "kharif" | "rabi" | "zaid"
-): Promise<AgroContext> {
+): Promise<{ ctx: AgroContext; provenance: DataProvenance }> {
   const base = buildContext(districtId, cropId, season);
   const { lat, lng } = base.district;
-  if (!lat || !lng) return base; // no coordinate — use the baseline as-is
+  if (!lat || !lng) {
+    return {
+      ctx: base,
+      provenance: { weather: "estimated", soil: "regional" },
+    };
+  }
 
   const isCurated = getDistricts().some((d) => d.id === districtId);
   const [weather, soil] = await Promise.allSettled([
@@ -75,7 +82,7 @@ async function buildLiveContext(
     getLiveSoil(lat, lng),
   ]);
 
-  return {
+  const ctx: AgroContext = {
     ...base,
     weather: weather.status === "fulfilled" ? weather.value : base.weather,
     soil:
@@ -84,6 +91,14 @@ async function buildLiveContext(
         : isCurated
           ? base.soil
           : regionalSoil(base.district.state),
+  };
+
+  return {
+    ctx,
+    provenance: {
+      weather: weather.status === "fulfilled" ? "live" : "estimated",
+      soil: soil.status === "fulfilled" ? "live" : isCurated ? "reference" : "regional",
+    },
   };
 }
 
@@ -152,15 +167,19 @@ export async function generateAdvisory(
   districtId: string,
   cropId: string,
   season: "kharif" | "rabi" | "zaid"
-): Promise<{ advisory: Advisory; source: "ai" | "demo" }> {
-  const ctx = await buildLiveContext(districtId, cropId, season);
+): Promise<{
+  advisory: Advisory;
+  source: "ai" | "demo";
+  provenance: DataProvenance;
+}> {
+  const { ctx, provenance } = await buildLiveContext(districtId, cropId, season);
   if (hasApiKey()) {
     try {
       const advisory = await generateAdvisoryWithAI(ctx);
-      return { advisory, source: "ai" };
+      return { advisory, source: "ai", provenance };
     } catch (err) {
       console.error("Advisory AI call failed, falling back to demo:", err);
     }
   }
-  return { advisory: generateAdvisoryMock(ctx), source: "demo" };
+  return { advisory: generateAdvisoryMock(ctx), source: "demo", provenance };
 }

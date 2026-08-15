@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { District } from "@/lib/types";
+import { useEffect, useState } from "react";
+import type { District, DataProvenance, SoilInfo, WeatherInfo } from "@/lib/types";
 import { MapPinIcon } from "@/components/Icons";
 import SoilGauge from "@/components/SoilGauge";
 
@@ -36,11 +36,67 @@ function healthColor(score: number): { badge: string; text: string; dot: string;
   };
 }
 
+/** Small, quiet provenance badges — transparency, not a warning. */
+function SourceBadge({
+  live,
+  liveLabel,
+  estimateLabel,
+  liveTone,
+  estimateTone,
+}: {
+  live: boolean;
+  liveLabel: string;
+  estimateLabel: string;
+  liveTone: string;
+  estimateTone: string;
+}) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+        live ? liveTone : estimateTone
+      }`}
+    >
+      <span className={`h-1.5 w-1.5 rounded-full ${live ? "bg-leaf-500" : "bg-gold-500"}`} />
+      {live ? liveLabel : estimateLabel}
+    </span>
+  );
+}
+
 export default function SoilHealthView({ districts }: Props) {
   const [selectedId, setSelectedId] = useState<string>(districts[0]?.id ?? "");
+  const [live, setLive] = useState<
+    { weather: WeatherInfo; soil: SoilInfo; provenance: DataProvenance } | null
+  >(null);
+  const [liveLoading, setLiveLoading] = useState(false);
+
+  // Fetch live weather/soil for the selected region so the page labels are honest.
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      if (!selectedId) return;
+      setLiveLoading(true);
+      try {
+        const res = await fetch(`/api/soil?districtId=${encodeURIComponent(selectedId)}`);
+        const data = await res.json();
+        if (!cancelled && !data.error) setLive(data);
+      } catch {
+        // Keep static values; labels fall back to estimate below.
+      } finally {
+        if (!cancelled) setLiveLoading(false);
+      }
+    }
+    load();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedId]);
 
   const selected = districts.find((d) => d.id === selectedId) ?? districts[0];
   if (!selected) return null;
+
+  const weather = live?.weather ?? selected.weather;
+  const soil = live?.soil ?? selected.soil;
+  const provenance = live?.provenance ?? { weather: "estimated", soil: "reference" };
 
   const score = ndviToScore(selected.ndvi);
   const c = healthColor(score);
@@ -80,15 +136,41 @@ export default function SoilHealthView({ districts }: Props) {
           </span>
         </div>
 
+        <div className="mt-3 flex flex-wrap items-center gap-1.5">
+          {liveLoading && (
+            <span className="rounded-full bg-soil-100 px-2.5 py-1 text-[11px] font-semibold text-ink-soft">
+              Checking live data…
+            </span>
+          )}
+          {!liveLoading && (
+            <>
+              <SourceBadge
+                live={provenance.weather === "live"}
+                liveLabel="Live weather"
+                estimateLabel="Estimated weather"
+                liveTone="bg-sky-100 text-sky-800"
+                estimateTone="bg-gold-100 text-gold-800"
+              />
+              <SourceBadge
+                live={provenance.soil === "live"}
+                liveLabel="Live soil data"
+                estimateLabel={provenance.soil === "regional" ? "Regional estimate" : "Reference estimate"}
+                liveTone="bg-leaf-50 text-leaf-800"
+                estimateTone="bg-gold-100 text-gold-800"
+              />
+            </>
+          )}
+        </div>
+
         <SoilGauge score={score} className="mx-auto mt-3 h-28 w-56" />
 
         <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          <Metric label="Soil type" value={selected.soil.type} />
-          <Metric label="Soil pH" value={String(selected.soil.ph)} />
-          <Metric label="Organic carbon" value={`${selected.soil.organicCarbonPct}%`} />
-          <Metric label="Avg temperature" value={`${selected.weather.tempC}°C`} />
-          <Metric label="Annual rainfall" value={`${selected.weather.rainfallMm} mm`} />
-          <Metric label="Humidity" value={`${selected.weather.humidityPct}%`} />
+          <Metric label="Soil type" value={soil.type} />
+          <Metric label="Soil pH" value={String(soil.ph)} />
+          <Metric label="Organic carbon" value={`${soil.organicCarbonPct}%`} />
+          <Metric label="Avg temperature" value={`${weather.tempC}°C`} />
+          <Metric label="Annual rainfall" value={`${weather.rainfallMm} mm`} />
+          <Metric label="Humidity" value={`${weather.humidityPct}%`} />
         </div>
 
         <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-sm leading-relaxed text-ink">{c.note}</p>

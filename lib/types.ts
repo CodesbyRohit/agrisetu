@@ -70,6 +70,19 @@ export interface AdvisoryRequest {
   season: Season;
 }
 
+/**
+ * Where each data point in a result came from — used for small transparency
+ * badges so farmers know whether they're seeing live readings or estimates.
+ *  - weather: "live" = current conditions fetched from Open-Meteo; "estimated" = fell back to a baseline
+ *  - soil:    "live" = SoilGrids 250 m estimate at the district centroid; "regional" = state-level ICAR layer
+ */
+export interface DataProvenance {
+  weather: "live" | "estimated";
+  /** live = SoilGrids 250 m estimate; regional = state-level ICAR layer;
+   * reference = curated per-district demo layer (only for the 15 curated districts). */
+  soil: "live" | "regional" | "reference";
+}
+
 export interface DiagnoseRequest {
   imageBase64: string; // raw base64 (no data: prefix)
   mimeType: string;

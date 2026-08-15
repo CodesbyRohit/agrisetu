@@ -12,8 +12,9 @@ export default function SoilHealthPage() {
           Your region’s soil health
         </h1>
         <p className="mt-1.5 text-ink-soft">
-          A simple green–yellow–red score for each region’s vegetation and soil — derived
-          from NDVI satellite data. Demo layer: live satellite integration can be plugged in later.
+          A simple green–yellow–red score for each region’s vegetation and soil. Weather and
+          soil are fetched live where available; the NDVI vegetation score is a reference
+          layer — live satellite integration can be plugged in later.
         </p>
       </div>
       <SoilHealthView districts={districts} />

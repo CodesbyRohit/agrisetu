@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Advisory, Crop, District, DistrictRef, Season } from "@/lib/types";
+import type { Advisory, Crop, DataProvenance, District, DistrictRef, Season } from "@/lib/types";
 import {
   AlertTriangleIcon,
   ArrowRightIcon,
@@ -50,7 +50,12 @@ type State =
   | { status: "idle" }
   | { status: "loading" }
   | { status: "error"; message: string }
-  | { status: "done"; advisory: Advisory; source: "ai" | "demo" };
+  | {
+      status: "done";
+      advisory: Advisory;
+      source: "ai" | "demo";
+      provenance: DataProvenance;
+    };
 
 export default function AdvisoryForm({ districtOptions, curatedDistricts, crops }: Props) {
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -84,7 +89,13 @@ export default function AdvisoryForm({ districtOptions, curatedDistricts, crops 
         });
         return;
       }
-      setState({ status: "done", advisory: data.advisory, source: data.source });
+      setState({
+        status: "done",
+        advisory: data.advisory,
+        source: data.source,
+        provenance:
+          data.provenance ?? { weather: "estimated", soil: "regional" },
+      });
     } catch {
       setState({
         status: "error",
@@ -437,6 +448,7 @@ export default function AdvisoryForm({ districtOptions, curatedDistricts, crops 
         <FieldBulletin
           advisory={state.advisory}
           source={state.source}
+          provenance={state.provenance}
           districtLabel={districtRef ? `${districtRef.district}, ${districtRef.state}` : undefined}
           crop={crop}
           season={season}
@@ -481,12 +493,14 @@ function DistrictOption({
 function FieldBulletin({
   advisory,
   source,
+  provenance,
   districtLabel,
   crop,
   season,
 }: {
   advisory: Advisory;
   source: "ai" | "demo";
+  provenance: DataProvenance;
   districtLabel?: string;
   crop?: Crop;
   season: Season;
@@ -506,6 +520,34 @@ function FieldBulletin({
       <div className="flex items-center gap-2 px-5 pt-4 text-sm font-medium text-ink">
         <MapPinIcon className="h-4 w-4 shrink-0 text-leaf-600" />
         <span className="truncate">{context}</span>
+      </div>
+
+      {/* Data-source badges — subtle transparency, not a warning */}
+      <div className="flex flex-wrap items-center gap-1.5 px-5 pt-2.5">
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            provenance.weather === "live" ? "bg-sky-100 text-sky-800" : "bg-gold-100 text-gold-800"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${provenance.weather === "live" ? "bg-sky-500" : "bg-gold-500"}`}
+          />
+          {provenance.weather === "live" ? "Live weather" : "Estimated weather"}
+        </span>
+        <span
+          className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+            provenance.soil === "live" ? "bg-leaf-50 text-leaf-800" : "bg-gold-100 text-gold-800"
+          }`}
+        >
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${provenance.soil === "live" ? "bg-leaf-500" : "bg-gold-500"}`}
+          />
+          {provenance.soil === "live"
+            ? "Live soil data"
+            : provenance.soil === "regional"
+              ? "Regional estimate (live soil data unavailable)"
+              : "Reference estimate (live soil data unavailable)"}
+        </span>
       </div>
 
       <div className="px-5 pt-3">
