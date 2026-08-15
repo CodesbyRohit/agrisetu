@@ -1,4 +1,4 @@
-import { claudeJson, hasApiKey } from "./llm";
+import { claudeJson } from "./llm";
 import type { DiagnoseRequest, Diagnosis } from "./types";
 
 // ---------------------------------------------------------------------------

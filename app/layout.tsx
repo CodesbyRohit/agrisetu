@@ -1,30 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "AgriSetu — AI-Powered Agro-Advisory",
+  title: "AgriSetu — Farm advice for your crop and soil",
   description:
-    "Localized, data-driven agricultural guidance for small and marginal farmers — crop advisories, disease diagnostics, and soil health, built as an interoperable digital public good for the BRICS AgriN initiative.",
+    "Plain-language farming advice for small and marginal farmers — localized agro-advisories, crop disease diagnosis from a photo, and soil health, built for the BRICS AgriN initiative.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <Header />

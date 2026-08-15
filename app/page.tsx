@@ -1,84 +1,121 @@
 import Link from "next/link";
+import {
+  ArrowRightIcon,
+  CameraIcon,
+  MapPinIcon,
+  SproutIcon,
+  WheatIcon,
+} from "@/components/Icons";
 
-const features = [
-  {
-    href: "/advisory",
-    emoji: "🌦️",
-    title: "Get Agro-Advisory",
-    desc: "Select your location and crop to receive a plain-language advisory with irrigation, fertilizer, sowing and harvest guidance.",
-  },
-  {
-    href: "/diagnose",
-    emoji: "🔬",
-    title: "Crop Doctor",
-    desc: "Upload a photo of a sick crop or leaf and get an instant disease diagnosis with treatment and prevention tips.",
-  },
-  {
-    href: "/soil-health",
-    emoji: "🟢",
-    title: "Soil & Vegetation Health",
-    desc: "See a simple health indicator for your region — a color-coded view of vegetation and soil condition.",
-  },
-  {
-    href: "/schema",
-    emoji: "🔗",
-    title: "Interoperable Data Schema",
-    desc: "The standardized agro-advisory record format designed for cross-border sharing across BRICS AgriN nodes.",
-  },
+const steps = [
+  { n: "1", title: "Tell us your district", desc: "We use its soil and weather data" },
+  { n: "2", title: "Pick your crop", desc: "Rice, wheat, cotton, tomato and more" },
+  { n: "3", title: "Read your advisory", desc: "Water, fertilizer and timing — in plain words" },
 ];
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-3xl bg-gradient-to-br from-agri-600 to-agri-800 p-8 text-white sm:p-12">
-        <p className="mb-3 inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wider">
-          BRICS AgriN · Digital Public Good
+      <section className="relative overflow-hidden rounded-3xl bg-leaf-700 px-6 py-10 text-white sm:px-10 sm:py-14">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.08]"
+          aria-hidden
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(90deg, transparent 0 22px, rgba(255,255,255,0.7) 22px 23px)",
+          }}
+        />
+        <p className="mb-3 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold tracking-wide">
+          <SproutIcon className="h-3.5 w-3.5" />
+          Built for small and marginal farmers
         </p>
-        <h1 className="max-w-2xl text-3xl font-bold leading-tight sm:text-4xl">
-          Data-driven farming advice, in the palm of every farmer's hand.
+        <h1 className="font-display max-w-xl text-3xl font-semibold leading-tight sm:text-4xl">
+          Get farm advice for your crop and soil.
         </h1>
-        <p className="mt-4 max-w-xl text-agri-100">
-          AgriSetu combines weather, soil and crop data with AI to give small and
-          marginal farmers localized, plain-language guidance — and shares a
-          common data format so farming intelligence can flow across borders.
+        <p className="mt-3 max-w-lg text-leaf-100">
+          Tell us where you farm and what you grow, and AgriSetu gives you plain-language
+          advice on water, fertilizer, and timing — plus a photo check when your crop looks sick.
         </p>
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link
             href="/advisory"
-            className="rounded-full bg-white px-5 py-2.5 font-semibold text-agri-800 transition-transform hover:scale-105"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-4 text-base font-semibold text-leaf-800 transition-transform hover:scale-[1.02] active:scale-[0.99]"
           >
-            Get Advice →
+            Get my advisory
+            <ArrowRightIcon className="h-5 w-5" />
           </Link>
           <Link
             href="/diagnose"
-            className="rounded-full border border-white/40 px-5 py-2.5 font-semibold text-white transition-colors hover:bg-white/10"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/10 px-6 py-4 text-base font-semibold text-white transition-colors hover:bg-white/20"
           >
-            Diagnose a Crop
+            <CameraIcon className="h-5 w-5" />
+            Check my crop photo
           </Link>
         </div>
       </section>
 
-      <section>
-        <h2 className="mb-4 text-xl font-semibold text-agri-900 dark:text-agri-100">
-          What can you do with AgriSetu?
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {features.map((f) => (
-            <Link
-              key={f.href}
-              href={f.href}
-              className="group rounded-2xl border border-agri-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:border-agri-300 hover:shadow-lg dark:border-agri-900 dark:bg-black/40 dark:hover:border-agri-700"
-            >
-              <span className="text-2xl">{f.emoji}</span>
-              <h3 className="mt-2 font-semibold text-agri-800 group-hover:text-agri-600 dark:text-agri-100">
-                {f.title}
-              </h3>
-              <p className="mt-1 text-sm leading-relaxed text-agri-800/70 dark:text-agri-200/70">
-                {f.desc}
-              </p>
-            </Link>
+      <section className="grid gap-3 sm:grid-cols-2">
+        <Link
+          href="/advisory"
+          className="group flex items-start gap-4 rounded-2xl border border-soil-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-leaf-50 text-leaf-600">
+            <MapPinIcon className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block font-semibold text-ink">Advisory for your field</span>
+            <span className="mt-1 block text-sm leading-relaxed text-ink-soft">
+              Watering, fertilizer, sowing and harvest guidance for your crop and season.
+            </span>
+          </span>
+        </Link>
+
+        <Link
+          href="/diagnose"
+          className="group flex items-start gap-4 rounded-2xl border border-soil-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-md"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+            <CameraIcon className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block font-semibold text-ink">Crop photo check</span>
+            <span className="mt-1 block text-sm leading-relaxed text-ink-soft">
+              Upload a photo of a sick leaf or plant and get a likely disease name plus treatment steps.
+            </span>
+          </span>
+        </Link>
+
+        <Link
+          href="/soil-health"
+          className="group flex items-start gap-4 rounded-2xl border border-soil-100 bg-white p-5 transition-all hover:-translate-y-0.5 hover:shadow-md sm:col-span-2"
+        >
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gold-50 text-gold-600">
+            <WheatIcon className="h-5 w-5" />
+          </span>
+          <span>
+            <span className="block font-semibold text-ink">Your region’s soil health</span>
+            <span className="mt-1 block text-sm leading-relaxed text-ink-soft">
+              See a simple green–yellow–red health score for your region’s vegetation and soil.
+            </span>
+          </span>
+        </Link>
+      </section>
+
+      <section className="rounded-2xl border border-soil-100 bg-white p-5">
+        <h2 className="font-display text-lg font-semibold text-ink">How it works</h2>
+        <ol className="mt-3 grid gap-3 sm:grid-cols-3">
+          {steps.map((s) => (
+            <li key={s.n} className="flex items-start gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-leaf-100 text-sm font-bold text-leaf-700">
+                {s.n}
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-ink">{s.title}</span>
+                <span className="block text-sm text-ink-soft">{s.desc}</span>
+              </span>
+            </li>
           ))}
-        </div>
+        </ol>
       </section>
     </div>
   );

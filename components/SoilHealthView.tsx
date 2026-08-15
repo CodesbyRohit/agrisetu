@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { District } from "@/lib/types";
+import { MapPinIcon } from "@/components/Icons";
+import SoilGauge from "@/components/SoilGauge";
 
 interface Props {
   districts: District[];
@@ -11,12 +13,27 @@ function ndviToScore(ndvi: number): number {
   return Math.round(Math.min(100, Math.max(5, ndvi * 100)));
 }
 
-function healthColor(score: number): { bg: string; text: string; label: string; dot: string } {
+function healthColor(score: number): { badge: string; text: string; dot: string; note: string } {
   if (score >= 65)
-    return { bg: "bg-lime-100 dark:bg-lime-950/60", text: "text-lime-800 dark:text-lime-200", label: "Healthy", dot: "bg-lime-500" };
+    return {
+      badge: "bg-leaf-50 text-leaf-800",
+      text: "text-leaf-800",
+      dot: "bg-leaf-500",
+      note: "This region shows good vegetation cover and soil condition — a strong base for cropping. Maintain soil organic matter with rotations and residue retention.",
+    };
   if (score >= 45)
-    return { bg: "bg-yellow-100 dark:bg-yellow-950/60", text: "text-yellow-800 dark:text-yellow-200", label: "Moderate", dot: "bg-yellow-500" };
-  return { bg: "bg-red-100 dark:bg-red-950/60", text: "text-red-800 dark:text-red-200", label: "At risk", dot: "bg-red-500" };
+    return {
+      badge: "bg-gold-100 text-gold-800",
+      text: "text-gold-800",
+      dot: "bg-gold-500",
+      note: "Vegetation cover is moderate. Consider green manuring, cover crops and soil testing to strengthen soil health before the next season.",
+    };
+  return {
+    badge: "bg-red-100 text-red-800",
+    text: "text-red-800",
+    dot: "bg-red-500",
+    note: "This region shows low vegetation cover and stressed soil. Prioritize soil rehabilitation — compost, mulching, and drought-tolerant varieties.",
+  };
 }
 
 export default function SoilHealthView({ districts }: Props) {
@@ -29,15 +46,17 @@ export default function SoilHealthView({ districts }: Props) {
   const c = healthColor(score);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="rounded-2xl border border-agri-100 bg-white p-5 dark:border-agri-900 dark:bg-black/40">
-        <label className="mb-1 block text-sm font-medium text-agri-900 dark:text-agri-100">
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-6">
+      <div className="rounded-3xl border border-soil-100 bg-white p-5">
+        <label htmlFor="region" className="flex items-center gap-2 text-sm font-semibold text-ink">
+          <MapPinIcon className="h-4.5 w-4.5 text-leaf-600" />
           Choose a region
         </label>
         <select
+          id="region"
           value={selected.id}
           onChange={(e) => setSelectedId(e.target.value)}
-          className="w-full rounded-xl border border-agri-200 bg-white px-3 py-2.5 outline-none focus:border-agri-500 focus:ring-2 focus:ring-agri-200 dark:border-agri-800 dark:bg-black/40"
+          className="mt-2 w-full appearance-none rounded-2xl border-2 border-soil-200 bg-paper px-4 py-3.5 text-base font-medium text-ink outline-none transition-colors focus:border-leaf-500"
         >
           {districts.map((d) => (
             <option key={d.id} value={d.id}>
@@ -47,34 +66,23 @@ export default function SoilHealthView({ districts }: Props) {
         </select>
       </div>
 
-      <div className={`rounded-2xl border p-6 ${c.bg}`}>
-        <div className="flex items-center justify-between">
+      <div className="rounded-3xl border border-soil-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="text-lg font-bold text-agri-900 dark:text-agri-100">
+            <h3 className="font-display text-xl font-semibold text-ink">
               {selected.name}, {selected.state}
             </h3>
-            <p className="text-sm opacity-80">Vegetation & soil health indicator (NDVI-based)</p>
+            <p className="text-sm text-ink-soft">Vegetation & soil health (NDVI-based)</p>
           </div>
-          <span className={`flex items-center gap-2 rounded-full px-3 py-1 text-sm font-semibold ${c.text} bg-white/70 dark:bg-black/40`}>
+          <span className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${c.badge}`}>
             <span className={`h-2.5 w-2.5 rounded-full ${c.dot}`} />
-            {c.label}
+            {score >= 65 ? "Healthy" : score >= 45 ? "Moderate" : "At risk"}
           </span>
         </div>
 
-        <div className="mt-5">
-          <div className="mb-1 flex justify-between text-sm font-medium">
-            <span>Health score</span>
-            <span className={c.text}>{score}/100</span>
-          </div>
-          <div className="h-3 w-full overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
-            <div
-              className={`h-full rounded-full transition-all ${c.dot}`}
-              style={{ width: `${score}%` }}
-            />
-          </div>
-        </div>
+        <SoilGauge score={score} className="mx-auto mt-3 h-28 w-56" />
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
           <Metric label="Soil type" value={selected.soil.type} />
           <Metric label="Soil pH" value={String(selected.soil.ph)} />
           <Metric label="Organic carbon" value={`${selected.soil.organicCarbonPct}%`} />
@@ -83,17 +91,11 @@ export default function SoilHealthView({ districts }: Props) {
           <Metric label="Humidity" value={`${selected.weather.humidityPct}%`} />
         </div>
 
-        <p className="mt-4 text-sm leading-relaxed opacity-80">
-          {score >= 65
-            ? "This region shows good vegetation cover and soil condition — a strong base for cropping. Maintain soil organic matter with rotations and residue retention."
-            : score >= 45
-              ? "Vegetation cover is moderate. Consider green manuring, cover crops and soil testing to strengthen soil health before the next season."
-              : "This region shows low vegetation cover and stressed soil. Prioritize soil rehabilitation — compost, mulching, and drought-tolerant varieties."}
-        </p>
+        <p className="mt-4 rounded-2xl bg-paper px-4 py-3 text-sm leading-relaxed text-ink">{c.note}</p>
       </div>
 
-      <div className="rounded-2xl border border-agri-100 bg-white p-5 dark:border-agri-900 dark:bg-black/40">
-        <h4 className="mb-2 font-semibold text-agri-900 dark:text-agri-100">Regional overview</h4>
+      <div className="rounded-3xl border border-soil-100 bg-white p-5">
+        <h4 className="mb-2 font-semibold text-ink">All regions</h4>
         <div className="grid gap-2 sm:grid-cols-2">
           {districts.map((d) => {
             const s = ndviToScore(d.ndvi);
@@ -102,18 +104,18 @@ export default function SoilHealthView({ districts }: Props) {
               <button
                 key={d.id}
                 onClick={() => setSelectedId(d.id)}
-                className={`flex items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition-colors ${
+                className={`flex items-center justify-between rounded-2xl border-2 px-3.5 py-3 text-left transition-colors ${
                   d.id === selected.id
-                    ? "border-agri-500 bg-agri-50 dark:bg-agri-900/40"
-                    : "border-agri-100 hover:bg-agri-50 dark:border-agri-900 dark:hover:bg-agri-900/20"
+                    ? "border-leaf-500 bg-leaf-50"
+                    : "border-soil-100 bg-white hover:bg-leaf-50/50"
                 }`}
               >
-                <span className="font-medium text-agri-800 dark:text-agri-100">
+                <span className="text-sm font-semibold text-ink">
                   {d.name}, {d.state}
                 </span>
-                <span className={`flex items-center gap-1.5 text-xs font-semibold ${dc.text}`}>
+                <span className={`flex items-center gap-1.5 text-sm font-semibold ${dc.text}`}>
                   <span className={`h-2 w-2 rounded-full ${dc.dot}`} />
-                  {s}/100
+                  {s}
                 </span>
               </button>
             );
@@ -126,9 +128,9 @@ export default function SoilHealthView({ districts }: Props) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-white/70 p-3 dark:bg-black/30">
-      <dt className="text-xs font-semibold uppercase tracking-wide opacity-70">{label}</dt>
-      <dd className="mt-0.5 text-sm font-medium">{value}</dd>
+    <div className="rounded-2xl bg-paper px-3.5 py-3">
+      <dt className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{label}</dt>
+      <dd className="mt-0.5 text-sm font-semibold text-ink">{value}</dd>
     </div>
   );
 }

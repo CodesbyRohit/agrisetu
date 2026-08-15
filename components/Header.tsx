@@ -1,22 +1,22 @@
 import Link from "next/link";
+import { SproutIcon } from "@/components/Icons";
 
 const links = [
   { href: "/", label: "Home" },
-  { href: "/advisory", label: "Get Advice" },
-  { href: "/diagnose", label: "Crop Doctor" },
-  { href: "/soil-health", label: "Soil Health" },
-  { href: "/schema", label: "Data Schema" },
+  { href: "/advisory", label: "Get advice" },
+  { href: "/diagnose", label: "Crop doctor" },
+  { href: "/soil-health", label: "Soil health" },
 ];
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-10 border-b border-agri-100 bg-white/90 backdrop-blur dark:border-agri-900 dark:bg-black/70">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-10 border-b border-soil-100 bg-paper/90 backdrop-blur">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-2 px-4 py-3 sm:px-6">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-agri-600 text-base text-white">
-            🌾
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-leaf-600 text-white">
+            <SproutIcon className="h-5 w-5" />
           </span>
-          <span className="text-lg font-bold tracking-tight text-agri-800 dark:text-agri-200">
+          <span className="font-display text-xl font-semibold tracking-tight text-ink">
             AgriSetu
           </span>
         </Link>
@@ -25,7 +25,7 @@ export default function Header() {
             <Link
               key={l.href}
               href={l.href}
-              className="whitespace-nowrap rounded-full px-3 py-1.5 text-agri-800 transition-colors hover:bg-agri-100 dark:text-agri-200 dark:hover:bg-agri-900"
+              className="whitespace-nowrap rounded-full px-3 py-2 text-ink-soft transition-colors hover:bg-leaf-50 hover:text-leaf-700"
             >
               {l.label}
             </Link>
