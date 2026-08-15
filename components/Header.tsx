@@ -25,7 +25,7 @@ export default function Header() {
             <Link
               key={l.href}
               href={l.href}
-              className="whitespace-nowrap rounded-full px-3 py-2 text-ink-soft transition-colors hover:bg-leaf-50 hover:text-leaf-700"
+              className="flex min-h-11 items-center whitespace-nowrap rounded-full px-4 text-ink-soft transition-colors hover:bg-leaf-50 hover:text-leaf-700"
             >
               {l.label}
             </Link>

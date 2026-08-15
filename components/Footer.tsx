@@ -9,7 +9,7 @@ export default function Footer() {
         <p className="text-sm text-ink-soft">
           AgriSetu — farm advice in plain language · Built with AI — Code for Communities · BRICS AgriN
         </p>
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-ink-soft/80">
+        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-ink-soft">
           <Link href="/soil-health" className="transition-colors hover:text-leaf-700">
             Soil health
           </Link>

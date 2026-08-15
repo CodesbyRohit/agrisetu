@@ -69,9 +69,9 @@ export default function SoilHealthView({ districts }: Props) {
       <div className="rounded-3xl border border-soil-200 bg-white p-6 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h3 className="font-display text-xl font-semibold text-ink">
+            <h2 className="font-display text-xl font-semibold text-ink">
               {selected.name}, {selected.state}
-            </h3>
+            </h2>
             <p className="text-sm text-ink-soft">Vegetation & soil health (NDVI-based)</p>
           </div>
           <span className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold ${c.badge}`}>
@@ -95,7 +95,7 @@ export default function SoilHealthView({ districts }: Props) {
       </div>
 
       <div className="rounded-3xl border border-soil-100 bg-white p-5">
-        <h4 className="mb-2 font-semibold text-ink">All regions</h4>
+        <h3 className="mb-2 font-semibold text-ink">All regions</h3>
         <div className="grid gap-2 sm:grid-cols-2">
           {districts.map((d) => {
             const s = ndviToScore(d.ndvi);
@@ -104,7 +104,7 @@ export default function SoilHealthView({ districts }: Props) {
               <button
                 key={d.id}
                 onClick={() => setSelectedId(d.id)}
-                className={`flex items-center justify-between rounded-2xl border-2 px-3.5 py-3 text-left transition-colors ${
+                className={`flex min-h-12 items-center justify-between rounded-2xl border-2 px-4 text-left transition-colors ${
                   d.id === selected.id
                     ? "border-leaf-500 bg-leaf-50"
                     : "border-soil-100 bg-white hover:bg-leaf-50/50"
@@ -128,9 +128,9 @@ export default function SoilHealthView({ districts }: Props) {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-paper px-3.5 py-3">
+    <dl className="rounded-2xl bg-paper px-3.5 py-3">
       <dt className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{label}</dt>
       <dd className="mt-0.5 text-sm font-semibold text-ink">{value}</dd>
-    </div>
+    </dl>
   );
 }

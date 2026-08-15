@@ -120,9 +120,9 @@ export default function DiagnoseForm() {
 
       {/* Crop hint chips */}
       <div>
-        <p className="mb-2 text-sm font-semibold text-ink">
+        <label htmlFor="crop-hint" className="mb-2 block text-sm font-semibold text-ink">
           Which crop is this? <span className="font-normal text-ink-soft">(optional — helps the check)</span>
-        </p>
+        </label>
         <div className="flex flex-wrap gap-2">
           {CROP_CHIPS.map((c) => {
             const selected = cropHint === c;
@@ -131,7 +131,7 @@ export default function DiagnoseForm() {
                 key={c}
                 type="button"
                 onClick={() => setCropHint(selected ? "" : c)}
-                className={`inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+                className={`inline-flex min-h-11 items-center gap-1.5 rounded-full border-2 px-4 text-sm font-semibold transition-colors ${
                   selected
                     ? "border-leaf-600 bg-leaf-50 text-leaf-800"
                     : "border-soil-200 bg-white text-ink hover:border-leaf-300"
@@ -148,7 +148,8 @@ export default function DiagnoseForm() {
           value={cropHint}
           onChange={(e) => setCropHint(e.target.value)}
           placeholder="Or type another crop…"
-          className="mt-2.5 w-full rounded-2xl border-2 border-soil-200 bg-white px-4 py-3 outline-none transition-colors focus:border-leaf-500"
+          id="crop-hint"
+          className="mt-2.5 min-h-11 w-full rounded-2xl border-2 border-soil-200 bg-white px-4 outline-none transition-colors focus:border-leaf-500"
         />
       </div>
 
