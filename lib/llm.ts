@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-export const DEFAULT_MODEL = "claude-sonnet-4-5-20250929";
+export const DEFAULT_MODEL = "claude-sonnet-4-6";
 
 export function getModel(): string {
   return process.env.ANTHROPIC_MODEL || DEFAULT_MODEL;

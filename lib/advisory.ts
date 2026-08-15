@@ -107,7 +107,7 @@ async function generateAdvisoryWithAI(ctx: AgroContext): Promise<Advisory> {
   return claudeJson<Advisory>({
     system: buildAdvisorySystemPrompt(),
     user: buildAdvisoryUserPrompt(ctx),
-    maxTokens: 1200,
+    maxTokens: 3000,
   });
 }
 

@@ -56,7 +56,7 @@ export async function diagnoseWithAI(
     user: buildDiagnosisUserPrompt(req.cropHint),
     imageBase64: req.imageBase64,
     mimeType: req.mimeType,
-    maxTokens: 900,
+    maxTokens: 2000,
   });
   // Normalize: if not identified, drop disease fields
   if (!result.identified) {
